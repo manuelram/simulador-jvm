@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador JVM: El Código del Destino</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-bronze: #cd7f32;
+            --accent-plata: #cbd5e1;
+            --accent-oro: #fbbf24;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --correct: #10b981;
+            --incorrect: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid #334155;
+        }
+
+        .screen { display: none; }
+        .active { display: block; }
+
+        h2 { margin-top: 0; color: #38bdf8; }
+        p { line-height: 1.6; color: var(--text-main); }
+        
+        .input-group {
+            margin: 20px 0;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover { background: #0369a1; }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #0f172a;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        .option-btn {
+            background: #334155;
+            text-align: left;
+            font-weight: normal;
+            margin-bottom: 12px;
+            border: 1px solid #475569;
+        }
+        .option-btn:hover { background: #475569; }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .congrats-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px dashed;
+            margin-bottom: 20px;
+        }
+
+        .bronze-style { border-color: var(--accent-bronze); background: rgba(205, 127, 50, 0.1); color: #fda4af; }
+        .plata-style { border-color: var(--accent-plata); background: rgba(203, 213, 225, 0.1); color: #e2e8f0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #475569;
+        }
+        th { background: #0f172a; color: #38bdf8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="screen-welcome" class="screen active">
+        <h2>🚀 Simulador de Control de Flujo JVM</h2>
+        <p><strong>👾 LA DINÁMICA:</strong><br>
+        Ingresarás a un entorno sandbox de la Java Virtual Machine. Tu misión es demostrar dominio absoluto sobre condicionales, estructuras múltiples y bytecode.</p>
+        <p><strong>🎯 REGLAS DEL JUEGO:</strong><br>
+        • Viajarás por 3 Eras: Bronce, Plata y Oro.<br>
+        • <strong>Penalización Extrema:</strong> ¡Cada error restará <strong>-25 puntos</strong> de inmediato! No juegues al azar.</p>
+        
+        <div class="input-group">
+            <label for="username"><strong>👤 Ingresa tu Nombre de Usuario/Alias:</strong></label>
+            <input type="text" id="username" placeholder="Ej: Java_Master_2026">
+        </div>
+        <button onclick="startSimulation()">⚡ INICIAR SIMULACIÓN ⚡</button>
+    </div>
+
+    <div id="screen-quiz" class="screen">
+        <div class="stats-bar">
+            <div>JUGADOR: <span id="stat-user" style="color:#38bdf8;">-</span></div>
+            <div>PUNTAJE: <span id="stat-score" style="color:#f59e0b;">100</span> pts</div>
+        </div>
+        <h3 id="question-title" style="color: #cbd5e1;">Pregunta</h3>
+        <p id="question-text"></p>
+        
+        <div id="options-container"></div>
+        <div id="feedback-box" class="feedback"></div>
+        
+        <button id="next-btn" style="display:none;" onclick="processNext()">Continuar ➔</button>
+    </div>
+
+    <div id="screen-trans-bronze" class="screen">
+        <div class="congrats-card bronze-style">
+            <h2>✨ ¡FELICIDADES, PASASTE AL SIGUIENTE NIVEL! ✨</h2>
+            <p>Has superado los Fundamentos Lógicos de la Era de Bronce y asegurado tu primera insignia.</p>
+            <h3 style="color: var(--accent-bronze);">🎖️ MEDALLA DE BRONCE DESBLOQUEADA</h3>
+        </div>
+        <p>El compilador se está volviendo más estricto. La Era de Plata requerirá análisis de sintaxis avanzada y optimización de flujos selectores.</p>
+        <button onclick="loadLevel(2)">Cargar Era de Plata (Sintaxis) ➔</button>
+    </div>
+
+    <div id="screen-trans-plata" class="screen">
+        <div class="congrats-card plata-style">
+            <h2>✨ ¡FELICIDADES, PASASTE AL SIGUIENTE NIVEL! ✨</h2>
+            <p>Impresionante. Has dominado los selectores múltiples y los flujos compuestos.</p>
+            <h3 style="color: var(--accent-plata);">🎖️ MEDALLA DE PLATA DESBLOQUEADA</h3>
+        </div>
+        <p>Atención: Estás por entrar a la Era de Oro. Aquí evaluarás la optimización directamente desde las instrucciones del Bytecode de la JVM. Un paso en falso destruirá tu récord.</p>
+        <button onclick="loadLevel(3)">Cargar Era de Oro (Bytecode) ➔</button>
+    </div>
+
+    <div id="screen-scoreboard" class="screen">
+        <h2>🏆 Fin de la Simulación: Salón de la Fama</h2>
+        <p>La JVM ha cerrado el socket de ejecución de forma segura. Aquí están tus resultados, <strong id="final-name" style="color:#38bdf8;"></strong>:</p>
+        
+        <div class="stats-bar" style="font-size: 18px; text-align: center; display: block;">
+            PUNTUACIÓN FINAL: <span id="final-score" style="color:#fbbf24; font-weight:bold;">0</span> PTS
+        </div>
+
+        <h3>🏅 Medalla Asignada:</h3>
+        <p id="medal-display" style="font-size: 20px; font-weight: bold; text-align: center;"></p>
+
+        <h3>👥 Tabla de Rangos Globales del Servidor</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rango</th>
+                    <th>Condición de Errores</th>
+                    <th>Insignia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Senior JVM (Oro)</strong></td>
+                    <td>0 Errores Absolutos</td>
+                    <td>🥇 Oro</td>
+                </tr>
+                <tr>
+                    <td><strong>Mid Developer (Plata)</strong></td>
+                    <td>1 - 2 Errores</td>
+                    <td>🥈 Plata</td>
+                </tr>
+                <tr>
+                    <td><strong>Junior Dev (Bronce)</strong></td>
+                    <td>3 o más Errores</td>
+                    <td>🥉 Bronce</td>
+                </tr>
+            </tbody>
+        </table>
+        <button onclick="restartGame()" style="background:#475569; margin-top: 25px;">🔄 Registrar nuevo usuario / Reiniciar</button>
+    </div>
+
+</div>
+
+<script>
+    // Banco de datos simplificado para el flujo interactivo
+    const questions = [
+        // ERA BRONCE
+        { level: 1, q: "¿Cuál es el tipo de dato primitivo que devuelve obligatoriamente cualquier expresión colocada dentro del paréntesis de un 'if' en Java?", options: ["boolean", "int", "String", "void"], correct: 0, r: ["¡Correcto! Java exige un valor lógico binario en su bytecode de salto.", "Incorrecto (-25 pts). Java no interpreta el 0 o 1 como booleanos nativos.", "Incorrecto (-25 pts). Las cadenas son objetos del Heap, no estados lógicos.", "Incorrecto (-25 pts). Void es la ausencia de tipo."] },
+        { level: 1, q: "Si una condición 'if' evalúa una expresión falsa y no existe un bloque 'else', ¿qué hace el flujo?", options: ["Se salta el bloque 'if' y va a la siguiente línea secuencial.", "Detiene el programa con una excepción crítica.", "Vuelve a evaluar la condición de forma cíclica.", "Limpia los valores de las variables en memoria."], correct: 0, r: ["¡Correcto! El Program Counter salta directamente a la siguiente dirección de instrucción.", "Incorrecto (-25 pts). Un flujo falso sin else es un comportamiento normal.", "Incorrecto (-25 pts). El 'if' es una bifurcación única, no un bucle.", "Incorrecto (-25 pts). Los datos no mutan por cambios de flujo."] },
+        // ERA PLATA
+        { level: 2, q: "En un switch sin declaraciones 'break', si se empareja el caso 2, ¿qué sucede con los casos inferiores?", options: ["Se ejecutan consecutivamente por el efecto 'fall-through'.", "Se omiten y el switch finaliza inmediatamente.", "Provocan un error en tiempo de compilación.", "Se evalúan de nuevo en base a otra variable."], correct: 0, r: ["¡Correcto! Al no haber break, el flujo invade los bloques de abajo.", "Incorrecto (-25 pts). Sin break el flujo no se detiene de forma automática.", "Incorrecto (-25 pts). Es sintaxis totalmente válida y legal.", "Incorrecto (-25 pts). No se reevalúa la variable."] },
+        // ERA ORO
+        { level: 3, q: "A nivel de Bytecode JVM, ¿qué instrucción se genera preferentemente para compilar un switch con casos enteros compactos y consecutivos (ej: 1, 2, 3)?", options: ["tableswitch", "lookupswitch", "ifeq", "goto"], correct: 0, r: ["¡Correcto! Tableswitch permite saltos indexados inmediatos O(1) de alta eficiencia.", "Incorrecto (-25 pts). Lookupswitch se usa si los casos están dispersos.", "Incorrecto (-25 pts). Ifeq compara si un valor es igual a cero.", "Incorrecto (-25 pts). Goto es un salto directo incondicional."] }
+    ];
+
+    let username = "";
+    let score = 100;
+    let currentLevel = 1;
+    let questionIndex = 0;
+    let errors = 0;
+
+    function startSimulation() {
+        const input = document.getElementById("username").value.trim();
+        if(input === "") {
+            alert("Por favor, introduce un Nombre de Usuario para registrar tu sesión.");
+            return;
+        }
+        username = input;
+        score = 100;
+        errors = 0;
+        questionIndex = 0;
+        currentLevel = 1;
+        
+        document.getElementById("stat-user").innerText = username;
+        document.getElementById("stat-score").innerText = score;
+        
+        switchScreen("screen-quiz");
+        showQuestion();
+    }
+
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function showQuestion() {
+        // Filtrar preguntas que pertenezcan al nivel activo actual
+        const availableQuestions = questions.filter(q => q.level === currentLevel);
+        
+        // Si ya respondimos las de este nivel, activar transición
+        if(questionIndex >= availableQuestions.length) {
+            if(currentLevel === 1) {
+                switchScreen("screen-trans-bronze");
+            } else if(currentLevel === 2) {
+                switchScreen("screen-trans-plata");
+            } else {
+                showFinalScoreboard();
+            }
+            return;
+        }
+
+        const currentQ = availableQuestions[questionIndex];
+        document.getElementById("question-title").innerText = `Era de ${currentLevel === 1 ? 'Bronce' : currentLevel === 2 ? 'Plata' : 'Oro'} - Reto ${questionIndex + 1}`;
+        document.getElementById("question-text").innerText = currentQ.q;
+        
+        const container = document.getElementById("options-container");
+        container.innerHTML = "";
+        
+        document.getElementById("feedback-box").style.display = "none";
+        document.getElementById("next-btn").style.display = "none";
+
+        currentQ.options.forEach((opt, idx) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(idx, currentQ.correct, currentQ.r[idx]);
+            container.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected, correct, rationale) {
+        const feedback = document.getElementById("feedback-box");
+        feedback.style.display = "block";
+        feedback.innerText = rationale;
+        
+        // Bloquear todos los botones de opciones después de responder
+        document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+
+        if(selected === correct) {
+            feedback.style.backgroundColor = "rgba(16, 185, 129, 0.2)";
+            feedback.style.color = var(--correct);
+        } else {
+            feedback.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
+            feedback.style.color = var(--incorrect);
+            score -= 25;
+            errors++;
+            document.getElementById("stat-score").innerText = score;
+        }
+        document.getElementById("next-btn").style.display = "block";
+    }
+
+    function processNext() {
+        questionIndex++;
+        showQuestion();
+    }
+
+    function loadLevel(levelNum) {
+        currentLevel = levelNum;
+        questionIndex = 0;
+        switchScreen("screen-quiz");
+        showQuestion();
+    }
+
+    function showFinalScoreboard() {
+        switchScreen("screen-scoreboard");
+        document.getElementById("final-name").innerText = username;
+        document.getElementById("final-score").innerText = score;
+        
+        const medalBox = document.getElementById("medal-display");
+        if(errors === 0) {
+            medalBox.innerHTML = "🥇 ORO (Senior JVM Developer)<br><span style='font-size:14px; color:var(--text-muted);'>¡Rendimiento perfecto e impecable!</span>";
+            medalBox.style.color = "var(--accent-oro)";
+        } else if(errors <= 2) {
+            medalBox.innerHTML = "🥈 PLATA (Mid Developer)<br><span style='font-size:14px; color:var(--text-muted);'>Buen análisis, optimización estable.</span>";
+            medalBox.style.color = "var(--accent-plata)";
+        } else {
+            medalBox.innerHTML = "🥉 BRONCE (Junior Dev)<br><span style='font-size:14px; color:var(--text-muted);'>Estructuras lógicas aprobadas con observaciones.</span>";
+            medalBox.style.color = "var(--accent-bronze)";
+        }
+    }
+
+    function restartGame() {
+        document.getElementById("username").value = "";
+        switchScreen("screen-welcome");
+    }
+</script>
+
+</body>
+</html>
