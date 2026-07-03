@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador JVM: El Código del Destino (Nube Global)</title>
+    <title>Simulador JVM: El Código del Destino (Tu Nube Propia)</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -233,9 +233,14 @@
     let questionIndex = 0;
     let errors = 0;
 
-    // Conexión externa a una base de datos JSON en la nube compartida y gratuita
-    const API_URL = "https://api.jsonbin.io/v3/b/6684b067e41b4d34e40caa5c";
-    const API_KEY = "$2b$10$7R6W8F37nZ7M3lK9gX1O6eY6h5F2F9G2Z6V4m3N5B6V7C8D9E0F1G";
+    // =========================================================================
+    // ⚠️ REEMPLAZA ESTOS DOS VALORES CON TUS CREDENCIALES DE JSONBIN.IO
+    // =========================================================================
+    const BIN_ID = "6a47c9fada38895dfe29241e"; 
+    const API_KEY = "$2a$10$9032B2XLrLHY62N419cgAewGUu8X9L4r0GAxnqLDPOHVxRtBsD/ia";
+    // =========================================================================
+
+    const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
     function startSimulation() {
         const input = document.getElementById("username").value.trim();
@@ -307,33 +312,25 @@
         else { medal = "🥉 Bronce"; medalBox.style.color = "#cd7f32"; }
         medalBox.innerText = medal;
 
-        // --- ENVIAR Y RECIBIR DE INTERNET ---
         try {
-            // 1. Descargar base de datos actual
             let res = await fetch(API_URL, { headers: { "X-Master-Key": API_KEY } });
             let json = await res.json();
             let lista = json.record.scores || [];
 
-            // 2. Agregar al alumno actual
             lista.push({ name: username, points: score, badge: medal });
-
-            // 3. ORDENAR AUTOMÁTICAMENTE (Mayor puntaje primero)
             lista.sort((a, b) => b.points - a.points);
 
-            // Limitar a los mejores 20 para no saturar la pantalla
             if(lista.length > 20) lista = lista.slice(0, 20);
 
-            // 4. Subir la lista nueva a la nube para que todos la tengan
             await fetch(API_URL, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
                 body: JSON.stringify({ scores: lista })
             });
 
-            // 5. Dibujar la tabla
             renderTable(lista);
         } catch(e) {
-            document.querySelector("#global-table tbody").innerHTML = "<tr><td colspan='4' style='color:red;'>Error al conectar la base de datos global.</td></tr>";
+            document.querySelector("#global-table tbody").innerHTML = "<tr><td colspan='4' style='color:red;'>Error al conectar la base de datos global. Revisa tus credenciales.</td></tr>";
         }
     }
 
