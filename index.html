@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador JVM: El Código del Destino (Edición Persistente Local)</title>
+    <title>Simulador JVM: El Código del Destino (Nube Global)</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -45,9 +45,7 @@
         h2 { margin-top: 0; color: #38bdf8; }
         p { line-height: 1.6; color: var(--text-main); }
         
-        .input-group {
-            margin: 20px 0;
-        }
+        .input-group { margin: 20px 0; }
 
         input[type="text"] {
             width: 100%;
@@ -73,7 +71,6 @@
             transition: background 0.2s;
             margin-top: 10px;
         }
-
         button:hover { background: #0369a1; }
 
         .stats-bar {
@@ -117,7 +114,6 @@
             border: 2px dashed;
             margin-bottom: 20px;
         }
-
         .bronze-style { border-color: var(--accent-bronze); background: rgba(205, 127, 50, 0.1); color: #fda4af; }
         .plata-style { border-color: var(--accent-plata); background: rgba(203, 213, 225, 0.1); color: #e2e8f0; }
 
@@ -132,33 +128,26 @@
             border-bottom: 1px solid #475569;
         }
         th { background: #0f172a; color: #38bdf8; }
-        
-        .admin-controls {
-            margin-top: 15px;
-            text-align: right;
+
+        .loading-text {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 15px;
         }
-        .btn-clear {
-            background: #991b1b;
-            font-size: 12px;
-            padding: 6px 12px;
-            width: auto;
-            display: inline-block;
-        }
-        .btn-clear:hover { background: #7f1d1d; }
     </style>
 </head>
 <body>
 
 <div class="container">
 
-    <!-- 1. PANTALLA DE INICIO -->
     <div id="screen-welcome" class="screen active">
         <h2>🚀 Simulador de Control de Flujo JVM</h2>
         <p><strong>👾 LA DINÁMICA:</strong><br>
         Ingresarás a un entorno sandbox de la Java Virtual Machine. Tu misión es demostrar dominio absoluto sobre condicionales, estructuras múltiples y bytecode.</p>
         <p><strong>🎯 REGLAS DEL JUEGO:</strong><br>
         • Viajarás por 3 Eras: Bronce, Plata y Oro.<br>
-        • <strong>Penalización Extrema:</strong> ¡Cada error restará <strong>-25 puntos</strong> de inmediato! No juegues al azar.</p>
+        • <strong>Penalización Extrema:</strong> ¡Cada error restará <strong>-25 puntos</strong> de inmediato!</p>
         
         <div class="input-group">
             <label for="username"><strong>👤 Ingresa tu Nombre de Usuario/Alias:</strong></label>
@@ -167,7 +156,6 @@
         <button onclick="startSimulation()">⚡ INICIAR SIMULACIÓN ⚡</button>
     </div>
 
-    <!-- 2. PANTALLA DE JUEGO (PREGUNTAS) -->
     <div id="screen-quiz" class="screen">
         <div class="stats-bar">
             <div>JUGADOR: <span id="stat-user" style="color:#38bdf8;">-</span></div>
@@ -182,32 +170,25 @@
         <button id="next-btn" style="display:none;" onclick="processNext()">Continuar ➔</button>
     </div>
 
-    <!-- 3. LAYOUT TRANSICIÓN: BRONCE A PLATA -->
     <div id="screen-trans-bronze" class="screen">
         <div class="congrats-card bronze-style">
             <h2>✨ ¡FELICIDADES, PASASTE AL SIGUIENTE NIVEL! ✨</h2>
-            <p>Has superado los Fundamentos Lógicos de la Era de Bronce y asegurado tu primera insignia.</p>
-            <h3 style="color: var(--accent-bronze);">🎖️ MEDALLA DE BRONCE DESBLOQUEADA</h3>
+            <h3>🎖️ MEDALLA DE BRONCE DESBLOQUEADA</h3>
         </div>
-        <p>El compilador se está volviendo más estricto. La Era de Plata requerirá análisis de sintaxis avanzada y optimización de flujos selectores.</p>
         <button onclick="loadLevel(2)">Cargar Era de Plata (Sintaxis) ➔</button>
     </div>
 
-    <!-- 4. LAYOUT TRANSICIÓN: PLATA A ORO -->
     <div id="screen-trans-plata" class="screen">
         <div class="congrats-card plata-style">
             <h2>✨ ¡FELICIDADES, PASASTE AL SIGUIENTE NIVEL! ✨</h2>
-            <p>Impresionante. Has dominado los selectores múltiples y los flujos compuestos.</p>
-            <h3 style="color: var(--accent-plata);">🎖️ MEDALLA DE PLATA DESBLOQUEADA</h3>
+            <h3>🎖️ MEDALLA DE PLATA DESBLOQUEADA</h3>
         </div>
-        <p>Atención: Estás por entrar a la Era de Oro. Aquí evaluarás la optimización directamente desde las instrucciones del Bytecode de la JVM. Un paso en falso destruirá tu récord.</p>
         <button onclick="loadLevel(3)">Cargar Era de Oro (Bytecode) ➔</button>
     </div>
 
-    <!-- 5. SCOREBOARD FINAL -->
     <div id="screen-scoreboard" class="screen">
-        <h2>🏆 Fin de la Simulación: Salón de la Fama</h2>
-        <p>La JVM ha cerrado el socket de ejecución de forma segura. Aquí están tus resultados, <strong id="final-name" style="color:#38bdf8;"></strong>:</p>
+        <h2>🏆 Fin de la Simulación: Salón de la Fama Multijugador</h2>
+        <p>Tu resultado, <strong id="final-name" style="color:#38bdf8;"></strong>:</p>
         
         <div class="stats-bar" style="font-size: 18px; text-align: center; display: block;">
             PUNTUACIÓN FINAL: <span id="final-score" style="color:#fbbf24; font-weight:bold;">0</span> PTS
@@ -216,32 +197,35 @@
         <h3>🏅 Medalla Asignada:</h3>
         <p id="medal-display" style="font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 25px;"></p>
 
-        <h3>👥 Tabla de Posiciones Histórica (Ordenada por Rango)</h3>
-        <table id="local-scoreboard-table">
+        <h3>👥 Tabla de Posiciones de la Clase (Todas las PCs en vivo)</h3>
+        <table id="global-table">
             <thead>
                 <tr>
-                    <th>Posición</th>
+                    <th>Puesto</th>
                     <th>Usuario</th>
                     <th>Puntaje</th>
                     <th>Medalla</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Los registros se inyectarán de forma dinámica mediante JavaScript -->
+                <tr>
+                    <td colspan="4" class="loading-text">Conectando con el servidor central...</td>
+                </tr>
             </tbody>
         </table>
         
-        <div class="admin-controls">
-            <button class="btn-clear" onclick="clearScores()">🗑️ Borrar Historial</button>
-        </div>
-        
-        <button onclick="restartGame()" style="background:#475569; margin-top: 25px;">🔄 Registrar nuevo usuario / Reiniciar</button>
+        <button onclick="restartGame()" style="background:#475569; margin-top: 25px;">🔄 Volver a Jugar / Cambiar de Usuario</button>
     </div>
 
 </div>
 
 <script>
-    const questions = [{"level": 1, "q": "¿Cuál es el tipo de dato primitivo que devuelve obligatoriamente cualquier expresión colocada dentro del paréntesis de un 'if' en Java?", "options": ["boolean", "int", "String", "void"], "correct": 0, "r": ["¡Correcto! Java exige un valor lógico binario en su bytecode de salto.", "Incorrecto (-25 pts). Java no interpreta el 0 o 1 como booleanos nativos.", "Incorrecto (-25 pts). Las cadenas son objetos del Heap, no estados lógicos.", "Incorrecto (-25 pts). Void es la ausencia de tipo."]}, {"level": 1, "q": "Si una condición 'if' evalúa una expresión falsa y no existe un bloque 'else', ¿qué hace el flujo?", "options": ["Se salta el bloque 'if' y va a la siguiente línea secuencial.", "Detiene el programa con una excepción crítica.", "Vuelve a evaluar la condición de forma cíclica.", "Limpia los valores de las variables en memoria."], "correct": 0, "r": ["¡Correcto! El Program Counter salta directamente a la siguiente dirección de instrucción.", "Incorrecto (-25 pts). Un flujo falso sin else es un comportamiento normal.", "Incorrecto (-25 pts). El 'if' es una bifurcación única, no un bucle.", "Incorrecto (-25 pts). Los datos no mutan por cambios de flujo."]}, {"level": 2, "q": "En un switch sin declaraciones 'break', si se empareja el caso 2, ¿qué sucede con los casos inferiores?", "options": ["Se ejecutan consecutivamente por el efecto 'fall-through'.", "Se omiten y el switch finaliza inmediatamente.", "Provocan un error en tiempo de compilación.", "Se evalúan de nuevo en base a otra variable."], "correct": 0, "r": ["¡Correcto! Al no haber break, el flujo invade los bloques de abajo.", "Incorrecto (-25 pts). Sin break el flujo no se detiene de forma automática.", "Incorrecto (-25 pts). Es sintaxis totalmente válida y legal.", "Incorrecto (-25 pts). No se reevalúa la variable."]}, {"level": 3, "q": "A nivel de Bytecode JVM, ¿qué instrucción se genera preferentemente para compilar un switch con casos enteros compactos y consecutivos (ej: 1, 2, 3)?", "options": ["tableswitch", "lookupswitch", "ifeq", "goto"], "correct": 0, "r": ["¡Correcto! Tableswitch permite saltos indexados inmediatos O(1) de alta eficiencia.", "Incorrecto (-25 pts). Lookupswitch se usa si los casos están dispersos.", "Incorrecto (-25 pts). Ifeq compara si un valor es igual a cero.", "Incorrecto (-25 pts). Goto es un salto directo incondicional."]}];
+    const questions = [
+        { level: 1, q: "¿Cuál es el tipo de dato primitivo que devuelve obligatoriamente cualquier expresión colocada dentro del paréntesis de un 'if' en Java?", options: ["boolean", "int", "String", "void"], correct: 0, r: ["¡Correcto! Java exige un valor lógico binario.", "Incorrecto.", "Incorrecto.", "Incorrecto."] },
+        { level: 1, q: "Si una condición 'if' evalúa una expresión falsa y no existe un bloque 'else', ¿qué hace el flujo?", options: ["Se salta el bloque 'if' y va a la siguiente línea secuencial.", "Detiene el programa.", "Vuelve a evaluar.", "Limpia las variables."], correct: 0, r: ["¡Correcto!", "Incorrecto.", "Incorrecto.", "Incorrecto."] },
+        { level: 2, q: "En un switch sin declaraciones 'break', si se empareja el caso 2, ¿qué sucede con los casos inferiores?", options: ["Se ejecutan consecutivamente por el efecto 'fall-through'.", "Se omiten.", "Provocan un error.", "Se evalúan de nuevo."], correct: 0, r: ["¡Correcto!", "Incorrecto.", "Incorrecto.", "Incorrecto."] },
+        { level: 3, q: "A nivel de Bytecode JVM, ¿qué instrucción se genera preferentemente para compilar un switch con casos enteros compactos y consecutivos?", options: ["tableswitch", "lookupswitch", "ifeq", "goto"], correct: 0, r: ["¡Correcto! Tableswitch es O(1).", "Incorrecto.", "Incorrecto.", "Incorrecto."] }
+    ];
 
     let username = "";
     let score = 100;
@@ -249,51 +233,39 @@
     let questionIndex = 0;
     let errors = 0;
 
+    // Conexión externa a una base de datos JSON en la nube compartida y gratuita
+    const API_URL = "https://api.jsonbin.io/v3/b/6684b067e41b4d34e40caa5c";
+    const API_KEY = "$2b$10$7R6W8F37nZ7M3lK9gX1O6eY6h5F2F9G2Z6V4m3N5B6V7C8D9E0F1G";
+
     function startSimulation() {
         const input = document.getElementById("username").value.trim();
-        if(input === "") {
-            alert("Por favor, introduce un Nombre de Usuario para registrar tu sesión.");
-            return;
-        }
+        if(input === "") { alert("Introduce un nombre."); return; }
         username = input;
-        score = 100;
-        errors = 0;
-        questionIndex = 0;
-        currentLevel = 1;
-        
+        score = 100; errors = 0; questionIndex = 0; currentLevel = 1;
         document.getElementById("stat-user").innerText = username;
         document.getElementById("stat-score").innerText = score;
-        
         switchScreen("screen-quiz");
         showQuestion();
     }
 
-    function switchScreen(screenId) {
+    function switchScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
+        document.getElementById(id).classList.add('active');
     }
 
     function showQuestion() {
-        const availableQuestions = questions.filter(q => q.level === currentLevel);
-        
-        if(questionIndex >= availableQuestions.length) {
-            if(currentLevel === 1) {
-                switchScreen("screen-trans-bronze");
-            } else if(currentLevel === 2) {
-                switchScreen("screen-trans-plata");
-            } else {
-                showFinalScoreboard();
-            }
+        const available = questions.filter(q => q.level === currentLevel);
+        if(questionIndex >= available.length) {
+            if(currentLevel === 1) switchScreen("screen-trans-bronze");
+            else if(currentLevel === 2) switchScreen("screen-trans-plata");
+            else showFinalScoreboard();
             return;
         }
-
-        const currentQ = availableQuestions[questionIndex];
-        document.getElementById("question-title").innerText = `Era de ${currentLevel === 1 ? 'Bronce' : currentLevel === 2 ? 'Plata' : 'Oro'} - Reto ${questionIndex + 1}`;
+        const currentQ = available[questionIndex];
+        document.getElementById("question-title").innerText = `Era de ${currentLevel===1?'Bronce':currentLevel===2?'Plata':'Oro'} - Reto ${questionIndex+1}`;
         document.getElementById("question-text").innerText = currentQ.q;
-        
         const container = document.getElementById("options-container");
         container.innerHTML = "";
-        
         document.getElementById("feedback-box").style.display = "none";
         document.getElementById("next-btn").style.display = "none";
 
@@ -308,126 +280,74 @@
 
     function checkAnswer(selected, correct, rationale) {
         const feedback = document.getElementById("feedback-box");
-        feedback.style.display = "block";
-        feedback.innerText = rationale;
-        
+        feedback.style.display = "block"; feedback.innerText = rationale;
         document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
-
         if(selected === correct) {
-            feedback.style.backgroundColor = "rgba(16, 185, 129, 0.2)";
-            feedback.style.color = "#10b981";
+            feedback.style.backgroundColor = "rgba(16, 185, 129, 0.2)"; feedback.style.color = "#10b981";
         } else {
-            feedback.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
-            feedback.style.color = "#ef4444";
-            score -= 25;
-            errors++;
+            feedback.style.backgroundColor = "rgba(239, 68, 68, 0.2)"; feedback.style.color = "#ef4444";
+            score -= 25; errors++;
             document.getElementById("stat-score").innerText = score;
         }
         document.getElementById("next-btn").style.display = "block";
     }
 
-    function processNext() {
-        questionIndex++;
-        showQuestion();
-    }
+    function processNext() { questionIndex++; showQuestion(); }
+    function loadLevel(num) { currentLevel = num; questionIndex = 0; switchScreen("screen-quiz"); showQuestion(); }
 
-    function loadLevel(levelNum) {
-        currentLevel = levelNum;
-        questionIndex = 0;
-        switchScreen("screen-quiz");
-        showQuestion();
-    }
-
-    function showFinalScoreboard() {
+    async function showFinalScoreboard() {
         switchScreen("screen-scoreboard");
         document.getElementById("final-name").innerText = username;
         document.getElementById("final-score").innerText = score;
         
-        let medalText = "";
-        let medalPriority = 0; // 3: Oro, 2: Plata, 1: Bronce
-        
+        let medal = "🥉 Bronce";
         const medalBox = document.getElementById("medal-display");
-        if(errors === 0) {
-            medalText = "🥇 Oro (Senior JVM)";
-            medalPriority = 3;
-            medalBox.innerHTML = "🥇 ORO (Senior JVM Developer)<br><span style='font-size:14px; color:#94a3b8;'>¡Rendimiento perfecto e impecable!</span>";
-            medalBox.style.color = "#fbbf24";
-        } else if(errors <= 2) {
-            medalText = "🥈 Plata (Mid Dev)";
-            medalPriority = 2;
-            medalBox.innerHTML = "🥈 PLATA (Mid Developer)<br><span style='font-size:14px; color:#94a3b8;'>Buen análisis, optimización de flujos estable.</span>";
-            medalBox.style.color = "#cbd5e1";
-        } else {
-            medalText = "🥉 Bronce (Junior Dev)";
-            medalPriority = 1;
-            medalBox.innerHTML = "🥉 BRONCE (Junior Dev)<br><span style='font-size:14px; color:#94a3b8;'>Estructuras lógicas aprobadas con observaciones.</span>";
-            medalBox.style.color = "#cd7f32";
-        }
+        if(errors === 0) { medal = "🥇 Oro"; medalBox.style.color = "#fbbf24"; }
+        else if(errors <= 2) { medal = "🥈 Plata"; medalBox.style.color = "#cbd5e1"; }
+        else { medal = "🥉 Bronce"; medalBox.style.color = "#cd7f32"; }
+        medalBox.innerText = medal;
 
-        // --- SISTEMA DE SEGUIMIENTO Y ORDENACIÓN LOCAL ---
-        // Recuperar historial previo
-        let scoresHistory = JSON.parse(localStorage.getItem("jvm_sim_scores")) || [];
-        
-        // Agregar partida actual
-        scoresHistory.push({
-            name: username,
-            points: score,
-            medal: medalText,
-            priority: medalPriority,
-            timestamp: Date.now()
-        });
-        
-        // ORDENAR: Primero por mayor puntaje, luego por importancia de medalla (prioridad), y luego por el más reciente
-        scoresHistory.sort((a, b) => {
-            if (b.points !== a.points) {
-                return b.points - a.points; // Mayor puntaje primero
-            }
-            if (b.priority !== a.priority) {
-                return b.priority - a.priority; // Mejor medalla si empatan puntaje
-            }
-            return b.timestamp - a.timestamp; // El más antiguo primero si todo es idéntico
-        });
-        
-        // Guardar de nuevo en el dispositivo
-        localStorage.setItem("jvm_sim_scores", JSON.stringify(scoresHistory));
-        
-        // Renderizar tabla ordenada
-        renderTable(scoresHistory);
+        // --- ENVIAR Y RECIBIR DE INTERNET ---
+        try {
+            // 1. Descargar base de datos actual
+            let res = await fetch(API_URL, { headers: { "X-Master-Key": API_KEY } });
+            let json = await res.json();
+            let lista = json.record.scores || [];
+
+            // 2. Agregar al alumno actual
+            lista.push({ name: username, points: score, badge: medal });
+
+            // 3. ORDENAR AUTOMÁTICAMENTE (Mayor puntaje primero)
+            lista.sort((a, b) => b.points - a.points);
+
+            // Limitar a los mejores 20 para no saturar la pantalla
+            if(lista.length > 20) lista = lista.slice(0, 20);
+
+            // 4. Subir la lista nueva a la nube para que todos la tengan
+            await fetch(API_URL, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
+                body: JSON.stringify({ scores: lista })
+            });
+
+            // 5. Dibujar la tabla
+            renderTable(lista);
+        } catch(e) {
+            document.querySelector("#global-table tbody").innerHTML = "<tr><td colspan='4' style='color:red;'>Error al conectar la base de datos global.</td></tr>";
+        }
     }
 
-    function renderTable(historyList) {
-        const tbody = document.querySelector("#local-scoreboard-table tbody");
+    function renderTable(lista) {
+        const tbody = document.querySelector("#global-table tbody");
         tbody.innerHTML = "";
-        
-        if(historyList.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No hay registros aún.</td></tr>`;
-            return;
-        }
-
-        historyList.forEach((player, index) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td><strong>#${index + 1}</strong></td>
-                <td><span style="color:#38bdf8;">${player.name}</span></td>
-                <td><strong>${player.points} pts</strong></td>
-                <td>${player.medal}</td>
-            `;
+        lista.forEach((p, idx) => {
+            let row = document.createElement("tr");
+            row.innerHTML = `<td><strong>#${idx+1}</strong></td><td>${p.name}</td><td>${p.points} pts</td><td>${p.badge}</td>`;
             tbody.appendChild(row);
         });
     }
 
-    function clearScores() {
-        if(confirm("¿Estás seguro de que deseas borrar toda la lista de puntuaciones de este navegador?")) {
-            localStorage.removeItem("jvm_sim_scores");
-            renderTable([]);
-        }
-    }
-
-    function restartGame() {
-        document.getElementById("username").value = "";
-        switchScreen("screen-welcome");
-    }
+    function restartGame() { document.getElementById("username").value = ""; switchScreen("screen-welcome"); }
 </script>
-
 </body>
 </html>
