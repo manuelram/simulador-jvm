@@ -93,6 +93,12 @@
             font-weight: normal;
             margin-bottom: 12px;
             border: 1px solid #475569;
+            display: block;
+            width: 100%;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
         }
         .option-btn:hover { background: #475569; }
 
@@ -225,14 +231,10 @@
 </div>
 
 <script>
-    // Banco de datos simplificado para el flujo interactivo
     const questions = [
-        // ERA BRONCE
         { level: 1, q: "¿Cuál es el tipo de dato primitivo que devuelve obligatoriamente cualquier expresión colocada dentro del paréntesis de un 'if' en Java?", options: ["boolean", "int", "String", "void"], correct: 0, r: ["¡Correcto! Java exige un valor lógico binario en su bytecode de salto.", "Incorrecto (-25 pts). Java no interpreta el 0 o 1 como booleanos nativos.", "Incorrecto (-25 pts). Las cadenas son objetos del Heap, no estados lógicos.", "Incorrecto (-25 pts). Void es la ausencia de tipo."] },
         { level: 1, q: "Si una condición 'if' evalúa una expresión falsa y no existe un bloque 'else', ¿qué hace el flujo?", options: ["Se salta el bloque 'if' y va a la siguiente línea secuencial.", "Detiene el programa con una excepción crítica.", "Vuelve a evaluar la condición de forma cíclica.", "Limpia los valores de las variables en memoria."], correct: 0, r: ["¡Correcto! El Program Counter salta directamente a la siguiente dirección de instrucción.", "Incorrecto (-25 pts). Un flujo falso sin else es un comportamiento normal.", "Incorrecto (-25 pts). El 'if' es una bifurcación única, no un bucle.", "Incorrecto (-25 pts). Los datos no mutan por cambios de flujo."] },
-        // ERA PLATA
         { level: 2, q: "En un switch sin declaraciones 'break', si se empareja el caso 2, ¿qué sucede con los casos inferiores?", options: ["Se ejecutan consecutivamente por el efecto 'fall-through'.", "Se omiten y el switch finaliza inmediatamente.", "Provocan un error en tiempo de compilación.", "Se evalúan de nuevo en base a otra variable."], correct: 0, r: ["¡Correcto! Al no haber break, el flujo invade los bloques de abajo.", "Incorrecto (-25 pts). Sin break el flujo no se detiene de forma automática.", "Incorrecto (-25 pts). Es sintaxis totalmente válida y legal.", "Incorrecto (-25 pts). No se reevalúa la variable."] },
-        // ERA ORO
         { level: 3, q: "A nivel de Bytecode JVM, ¿qué instrucción se genera preferentemente para compilar un switch con casos enteros compactos y consecutivos (ej: 1, 2, 3)?", options: ["tableswitch", "lookupswitch", "ifeq", "goto"], correct: 0, r: ["¡Correcto! Tableswitch permite saltos indexados inmediatos O(1) de alta eficiencia.", "Incorrecto (-25 pts). Lookupswitch se usa si los casos están dispersos.", "Incorrecto (-25 pts). Ifeq compara si un valor es igual a cero.", "Incorrecto (-25 pts). Goto es un salto directo incondicional."] }
     ];
 
@@ -267,10 +269,8 @@
     }
 
     function showQuestion() {
-        // Filtrar preguntas que pertenezcan al nivel activo actual
         const availableQuestions = questions.filter(q => q.level === currentLevel);
         
-        // Si ya respondimos las de este nivel, activar transición
         if(questionIndex >= availableQuestions.length) {
             if(currentLevel === 1) {
                 switchScreen("screen-trans-bronze");
@@ -306,15 +306,14 @@
         feedback.style.display = "block";
         feedback.innerText = rationale;
         
-        // Bloquear todos los botones de opciones después de responder
         document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
 
         if(selected === correct) {
             feedback.style.backgroundColor = "rgba(16, 185, 129, 0.2)";
-            feedback.style.color = var(--correct);
+            feedback.style.color = "#10b981";
         } else {
             feedback.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
-            feedback.style.color = var(--incorrect);
+            feedback.style.color = "#ef4444";
             score -= 25;
             errors++;
             document.getElementById("stat-score").innerText = score;
@@ -341,14 +340,14 @@
         
         const medalBox = document.getElementById("medal-display");
         if(errors === 0) {
-            medalBox.innerHTML = "🥇 ORO (Senior JVM Developer)<br><span style='font-size:14px; color:var(--text-muted);'>¡Rendimiento perfecto e impecable!</span>";
-            medalBox.style.color = "var(--accent-oro)";
+            medalBox.innerHTML = "🥇 ORO (Senior JVM Developer)<br><span style='font-size:14px; color:#94a3b8;'>¡Rendimiento perfecto e impecable!</span>";
+            medalBox.style.color = "#fbbf24";
         } else if(errors <= 2) {
-            medalBox.innerHTML = "🥈 PLATA (Mid Developer)<br><span style='font-size:14px; color:var(--text-muted);'>Buen análisis, optimización estable.</span>";
-            medalBox.style.color = "var(--accent-plata)";
+            medalBox.innerHTML = "🥈 PLATA (Mid Developer)<br><span style='font-size:14px; color:#94a3b8;'>Buen análisis, optimización de flujos estable.</span>";
+            medalBox.style.color = "#cbd5e1";
         } else {
-            medalBox.innerHTML = "🥉 BRONCE (Junior Dev)<br><span style='font-size:14px; color:var(--text-muted);'>Estructuras lógicas aprobadas con observaciones.</span>";
-            medalBox.style.color = "var(--accent-bronze)";
+            medalBox.innerHTML = "🥉 BRONCE (Junior Dev)<br><span style='font-size:14px; color:#94a3b8;'>Estructuras lógicas aprobadas con observaciones.</span>";
+            medalBox.style.color = "#cd7f32";
         }
     }
 
